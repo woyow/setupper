@@ -1,0 +1,39 @@
+app:
+  name: 'core-service'
+  version: '0.0.1'
+
+logger:
+  log_level: "debug"
+  disable_timestamp: false
+  full_timestamp: true
+  elastic:
+    url: ""
+    index_name: ""
+    cert: ""
+    username_env_key: "ELASTIC_USERNAME"
+    password_env_key: "ELASTIC_PASSWORD"
+    enable: false
+
+psql:
+  url_env_key: "YOUR_TG_PG_URL"
+  db_name_env_key: "YOUR_TG_PG_DATABASE"
+  url_parameters_env_key: "YOUR_TG_PG_URL_PARAMETERS"
+  migration:
+    source: "file://db/migrations/psql/"
+    attempts: 1
+    attempts_timeout: 1
+    enable: true
+  pool:
+    max_pool_size: 10
+    min_pool_size: 1
+    connection_attempts: 10
+    connection_timeout: 1
+
+your_tg:
+  echotron:
+    bot_name_env_key: "YOUR_TG_BOT_NAME"
+    token_env_key: "YOUR_TG_BOT_TOKEN"
+    webhook_url_env_key: "YOUR_TG_BOT_WEBHOOK_URL"
+    webhook_http_addr_env_key: "YOUR_TG_BOT_WEBHOOK_HTTP_ADDR"
+
+
