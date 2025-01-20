@@ -31,7 +31,7 @@ type Psql struct {
 	migration    migration
 	databaseURL  string
 	databaseName string
-	stop         <-chan os.Signal
+	stop         <-chan struct{}
 }
 
 type migration struct {
@@ -41,7 +41,7 @@ type migration struct {
 	isEnabled      bool
 }
 
-func NewPsql(ctx context.Context, cfg *Config, stop <-chan os.Signal, log *logrus.Logger) (*Psql, error) {
+func NewPsql(ctx context.Context, cfg *Config, stop <-chan struct{}, log *logrus.Logger) (*Psql, error) {
 	databaseURL := getDatabaseURL(cfg)
 
 	queryBuilder := getQueryBuilder()
@@ -65,6 +65,14 @@ func NewPsql(ctx context.Context, cfg *Config, stop <-chan os.Signal, log *logru
 		},
 		stop: stop,
 	}
+
+	go func() {
+		if err := p.shutdown(); err != nil {
+			p.log.WithFields(logrus.Fields{
+				setupLoggingKey: setupLoggingValue,
+			}).Error("p.shutdown error: ", err)
+		}
+	}()
 
 	return p, nil
 }
@@ -156,11 +164,13 @@ func (p *Psql) GetPool() *pgxpool.Pool {
 	return p.pool
 }
 
-func (p *Psql) Shutdown() error {
-	p.log.WithField(setupLoggingKey, setupLoggingValue).
-		Info("Shutdown - close postgresql pool")
+func (p *Psql) shutdown() error {
+	select {
+	case <-p.stop:
+		p.log.WithField(setupLoggingKey, setupLoggingValue).
+			Info("Shutdown - close postgresql pool")
 
-	p.pool.Close()
-
+		p.pool.Close()
+	}
 	return nil
 }

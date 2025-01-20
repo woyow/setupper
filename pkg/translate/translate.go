@@ -1,7 +1,6 @@
 package translate
 
 import (
-	"os"
 	"unsafe"
 	"context"
 	"sync"
@@ -32,10 +31,10 @@ type Translate struct {
 	dbName              string
 	defaultLanguage     string
 	availableLanguages  []string
-	stopCh              <-chan os.Signal
+	stop                <-chan struct{}
 }
 
-func NewTranslate(repo repo, cfg Config, stopCh <-chan os.Signal, log *logrus.Logger) *Translate {
+func NewTranslate(repo repo, cfg Config, stop <-chan struct{}, log *logrus.Logger) *Translate {
 	t := &Translate{
 		repo:               repo,
 		localizationData: localizationData{
@@ -51,7 +50,7 @@ func NewTranslate(repo repo, cfg Config, stopCh <-chan os.Signal, log *logrus.Lo
 		defaultLanguage:    cfg.DefaultLanguage,
 		availableLanguages: cfg.AvailableLanguages,
 		log:                log,
-		stopCh:             stopCh,
+		stop:               stop,
 	}
 
 	if err := t.update(); err != nil {
@@ -132,6 +131,9 @@ func (t *Translate) updater() {
 
 	for {
 		select {
+		case <-t.stop:
+			t.log.Info("translate: stop updater")
+			return
 		case <-tt.C:
 			if err := t.update(); err != nil {
 				continue

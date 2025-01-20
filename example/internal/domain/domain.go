@@ -4,7 +4,6 @@ import (
 	telegramDelivery "github.com/woyow/setupper/example/internal/domain/delivery/telegram"
 	"github.com/woyow/setupper/example/internal/domain/domain/service"
 	"github.com/woyow/setupper/example/internal/domain/infra"
-	"os"
 
 	"github.com/woyow/setupper/pkg/telegram"
 	"github.com/woyow/setupper/pkg/translate"
@@ -26,7 +25,7 @@ type Setup struct {
 	Echotron *setupEchotron.Echotron
 }
 
-func NewDomain(setup *Setup, stop <-chan os.Signal, log *logrus.Logger) {
+func NewDomain(setup *Setup, stop <-chan struct{}, log *logrus.Logger) {
 
 	infr := infra.NewInfra(setup.Psql, setup.Echotron, log)
 

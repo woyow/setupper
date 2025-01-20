@@ -5,13 +5,14 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	
+	"time"
+
 	"github.com/woyow/setupper/example/internal/config"
 	"github.com/woyow/setupper/example/internal/domain"
 
-	setupPsql "github.com/woyow/setupper/pkg/setup/psql"
-	setupLogger "github.com/woyow/setupper/pkg/setup/logger"
 	setupEchotron "github.com/woyow/setupper/pkg/setup/echotron"
+	setupLogger "github.com/woyow/setupper/pkg/setup/logger"
+	setupPsql "github.com/woyow/setupper/pkg/setup/psql"
 
 	psqlMigrate "github.com/woyow/setupper/pkg/setup/psql/migrate"
 
@@ -34,14 +35,17 @@ type app struct {
 	errGroup *errgroup.Group
 	setup    setup
 	migrate  migrate
-	stopCh   chan os.Signal
+	sigCh    chan os.Signal
+	stopCh   chan struct{}
 	ctx      context.Context
 	cancelFn context.CancelFunc
 }
 
 func NewApp() *app {
-	stopCh := make(chan os.Signal, 1)
-	signal.Notify(stopCh, syscall.SIGINT, syscall.SIGTERM)
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
+
+	stopCh := make(chan struct{}, 0)
 
 	ctx, cancel := context.WithCancel(context.Background()) // Base app context
 
@@ -73,13 +77,14 @@ func NewApp() *app {
 		log:      logger,
 		cfg:      cfg,
 		errGroup: errGroup,
+		sigCh:    sigCh,
 		stopCh:   stopCh,
 		ctx:      ctx,
 		cancelFn: cancel,
 		setup: setup{
 			domain: &domain.Setup{
-				Echotron:      yourTgEchotron,
-				Psql:          psql,
+				Echotron: yourTgEchotron,
+				Psql:     psql,
 			},
 			psql:  psql,
 		},
@@ -97,16 +102,18 @@ func (a *app) Run() error {
 		}
 	}
 
-	// Initialize domains
+	// Initialize domain
 	{
 		domain.NewDomain(a.setup.domain, a.stopCh, a.log)
 	}
 
 	// Handle stop program
 	a.errGroup.Go(func() error {
-		a.log.Infof("Got %s signal. Aborting...\n", <-a.stopCh)
+		a.log.Infof("Got %s signal. Aborting...\n", <-a.sigCh)
 		a.cancelFn()
+		close(a.sigCh)
 		close(a.stopCh)
+		<-time.After(1 * time.Second)
 		return nil
 	})
 

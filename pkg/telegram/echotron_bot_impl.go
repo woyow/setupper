@@ -81,7 +81,6 @@ func (b *bot) setState() {
 		ChatID: b.chatID,
 	})
 	if isBanned {
-
 		b.state = b.states[StateBanned]
 		return
 	}
