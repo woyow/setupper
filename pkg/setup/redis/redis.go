@@ -62,9 +62,12 @@ func (r *Redis) GetClient() *redis.Client {
 	return r.client
 }
 
-func (r *Redis) Shutdown() error {
-	r.log.WithField(setupLoggingKey, setupLoggingValue).
-			Info("Shutdown - close redis connect")
-	
-	return r.client.Close()
+func (r *Redis) shutdown() error {
+	select {
+	case <-r.stop:
+		r.log.WithField(setupLoggingKey, setupLoggingValue).
+		Info("Shutdown - close redis connect")
+
+		return r.client.Close()
+	}
 }
