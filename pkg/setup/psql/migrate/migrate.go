@@ -27,8 +27,6 @@ type Migrate struct {
 const (
 	setupLoggingKey   = "setup"
 	setupLoggingValue = "postgresql migrate"
-
-	// sourceURL    = "file://db/psql/migrations"
 )
 
 func NewMigrate(setupPsql *setupPsql.Psql, log *logrus.Logger) (*Migrate, error) {
@@ -95,7 +93,7 @@ func (m *Migrate) Run() error {
 		}
 
 		m.log.WithField(setupLoggingKey, setupLoggingValue).
-			Fatal("Run - m.m.Up error: ", err.Error())
+			Fatal("Run - mm.Up error: ", err.Error())
 
 		return err
 	}

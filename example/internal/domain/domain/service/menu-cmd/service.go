@@ -7,18 +7,19 @@ import (
 	entity "github.com/woyow/setupper/example/internal/domain/domain/entity/menu-cmd"
 	types "github.com/woyow/setupper/example/internal/domain/domain/types/menu-cmd"
 
-	"github.com/sirupsen/logrus"
 	"github.com/woyow/setupper/pkg/marshaling/json"
 	"github.com/woyow/setupper/pkg/telegram"
+
+	"github.com/sirupsen/logrus"
 )
 
 type api interface {
-	SendMessage(dto commonEntity.SendMessageAPIDTO) error
+	// SendMessage(dto commonEntity.SendMessageAPIDTO) error
 	SendMessageWithInlineKeyboard(dto commonEntity.SendMessageWithInlineKeyboardAPIDTO) error
-	EditMessageWithInlineKeyboard(dto commonEntity.EditMessageWithInlineKeyboardAPIDTO) error
+	// EditMessageWithInlineKeyboard(dto commonEntity.EditMessageWithInlineKeyboardAPIDTO) error
 	EditMessageText(dto commonEntity.EditMessageTextAPIDTO) error
-	DeleteMessage(dto commonEntity.DeleteMessageAPIDTO) error
-	DeleteMessages(dto commonEntity.DeleteMessagesAPIDTO) error
+	// DeleteMessage(dto commonEntity.DeleteMessageAPIDTO) error
+	// DeleteMessages(dto commonEntity.DeleteMessagesAPIDTO) error
 }
 
 
@@ -74,7 +75,9 @@ func (s *Service) MenuCommandCallback(ctx context.Context, dto entity.MenuComman
 	out.WaitCallback = true
 
 	if err := json.Unmarshal([]byte(dto.CallbackData), &callback); err != nil {
-		s.log.WithFields(logrus.Fields{callbackDataLoggingKey: dto.CallbackData}).Error("MenuCommandCallback - json.Unmarshal error: ", err)
+		s.log.WithFields(logrus.Fields{
+			callbackDataLoggingKey: dto.CallbackData,
+			}).Error("MenuCommandCallback - json.Unmarshal error: ", err)
 		return out, nil
 	}
 
@@ -88,8 +91,6 @@ func (s *Service) MenuCommandCallback(ctx context.Context, dto entity.MenuComman
 			return out, err
 		}
 	case types.ChooseMenuItem:
-		out.WaitCallback = true
-
 		var callback entity.ChooseMenuItemCallbackOut
 
 		if err := json.Unmarshal([]byte(dto.CallbackData), &callback); err != nil {

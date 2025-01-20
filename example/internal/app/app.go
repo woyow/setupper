@@ -45,7 +45,7 @@ func NewApp() *app {
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 
-	stopCh := make(chan struct{}, 0)
+	stopCh := make(chan struct{}, 1)
 
 	ctx, cancel := context.WithCancel(context.Background()) // Base app context
 

@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	menuTranslateKey = "menu"
+	menuTranslateKey          = "menu"
 	menuItemTest1TranslateKey = "menu_item_test1"
 	menuItemTest2TranslateKey = "menu_item_test2"
 	menuItemTest3TranslateKey = "menu_item_test3"
@@ -122,7 +122,7 @@ type chooseMenuItemDTO struct {
 	telegram.HandleCallback
 }
 
-func (s *Service) chooseMenuItem(ctx context.Context, dto chooseMenuItemDTO) error {
+func (s *Service) chooseMenuItem(_ context.Context, dto chooseMenuItemDTO) error {
 	switch dto.callback.MenuItem {
 	case types.MenuItemTest1:
 		s.log.Debug("chooseMenuItem - MenuItemTest1")

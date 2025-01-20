@@ -1,3 +1,3 @@
 # setupper
 
-My library for setup projets
+My library for setup projects
