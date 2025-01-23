@@ -2,7 +2,7 @@ module github.com/woyow/setupper
 
 go 1.23.5
 
-replace github.com/woyow/setupper => /home/eye/github/setupper
+replace github.com/woyow/setupper => ./
 
 require (
 	github.com/Masterminds/squirrel v1.5.4

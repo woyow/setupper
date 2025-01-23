@@ -1,7 +1,7 @@
 package http
 
 import (
-	"shared-lib/pkg/setup/http/client"
+	"github.com/woyow/setupper/pkg/setup/http/client"
 )
 
 type Config struct {

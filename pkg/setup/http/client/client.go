@@ -35,7 +35,7 @@ func getHTTPClient(cfg *Config) *http.Client {
 
 	transport.MaxIdleConns = cfg.MaxIdleConnections
 	transport.MaxConnsPerHost = cfg.MaxConnectionsPerHost
-	transport.MaxIdleConnsPerHost = cfg.MaxIdleConnections
+	transport.MaxIdleConnsPerHost = cfg.MaxIdleConnectionsPerHost
 
 	var redirectFunc func(req *http.Request, via []*http.Request) error
 
